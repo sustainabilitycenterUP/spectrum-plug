@@ -139,4 +139,20 @@ final class MetricRepository {
       WHERE id = %d
     ", (int)$metric_id));
   }
+
+  public static function isMetricActiveInYear($metric_id, $year) {
+    global $wpdb;
+    $y = self::tYearMetric();
+
+    $found = $wpdb->get_var($wpdb->prepare("
+      SELECT id
+      FROM {$y}
+      WHERE metric_id = %d
+        AND year = %d
+        AND is_active = 1
+      LIMIT 1
+    ", (int)$metric_id, (int)$year));
+
+    return !empty($found);
+  }
 }

@@ -27,8 +27,22 @@ include __DIR__ . '/layout-open.php';
 
   <form method="post" enctype="multipart/form-data" class="sp-form-wrapper" id="sp-form">
     <?php wp_nonce_field('spectrum_save_evidence', 'spectrum_nonce'); ?>
-    <input type="hidden" name="year" value="<?php echo (int)$year; ?>">
-    <h4>Tahun pelaporan 2027 <br> Tahun akademik 2024/2025</h4>
+
+    <div class="sp-form-row">
+      <label class="sp-label">Tahun *</label>
+      <select name="year" id="sp-year-select" class="sp-select" required>
+        <?php foreach ((array)$years as $y): ?>
+          <option value="<?php echo (int)$y; ?>" <?php selected((int)$year, (int)$y); ?>>
+            <?php echo (int)$y; ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
+      <?php if ((int)$year > 0): ?>
+        <div class="sp-help">
+          Tolong berikan data tahun <?php echo esc_html(((int)$year - 3) . '/' . ((int)$year - 2)); ?>.
+        </div>
+      <?php endif; ?>
+    </div>
 
     <div class="sp-form-row">
       <label class="sp-label">Kategori *</label>
@@ -119,6 +133,7 @@ include __DIR__ . '/layout-open.php';
   const noDataIds = new Set(<?php echo wp_json_encode(array_values((array)$no_data_ids)); ?>.map(Number));
 
   const modeEls = document.querySelectorAll('input[name="metric_mode"]');
+  const yearSelect = document.getElementById('sp-year-select');
   const sdgRow = document.getElementById('sp-sdg-row');
   const sdgSelect = document.getElementById('general_sdg');
   const metricSelect = document.getElementById('metric_select');
@@ -238,6 +253,14 @@ include __DIR__ . '/layout-open.php';
   rebuildMetric();
   updateSourceMode();
   syncRequired();
+
+  if (yearSelect) {
+    yearSelect.addEventListener('change', function(){
+      const url = new URL(window.location.href);
+      url.searchParams.set('year', this.value);
+      window.location.href = url.toString();
+    });
+  }
 })();
 </script>
 

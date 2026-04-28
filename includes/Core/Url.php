@@ -12,7 +12,6 @@ final class Url {
       'new'    => 'buat-evidence-baru',
       'detail' => 'detail-evidence',
       'review' => 'evidence-direview',
-      'dash'   => 'dashboard-reviewer',
       'approved' => 'approved-evidence',
       'dashboard' => 'dashboard-spectrum',
       'metrics' => 'sdg-indikator-the',

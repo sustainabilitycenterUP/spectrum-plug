@@ -11,6 +11,7 @@ use Spectrum\Evidence\Services\DeleteService;
 use Spectrum\Evidence\Repositories\FunctionMetricAssignmentRepository;
 use Spectrum\Evidence\Repositories\MetricNoDataRepository;
 use Spectrum\Evidence\Repositories\MetricCoverageRepository;
+use Spectrum\Evidence\Repositories\MetricRepository;
 
 if (!defined('ABSPATH')) exit;
 
@@ -59,11 +60,34 @@ final class PostHandler {
     $year = isset($_POST['year']) ? (int)$_POST['year'] : 0;
     $metric_id = isset($_POST['metric_id']) ? (int)$_POST['metric_id'] : 0;
     $mode = isset($_POST['metric_mode']) ? sanitize_text_field($_POST['metric_mode']) : '';
+    $unit_code = Auth::unitCode($user_id);
+
+    if ($year <= 0 || $metric_id <= 0) {
+      Notices::set($user_id, 'error', 'Tahun dan metrik wajib dipilih.');
+      self::redirectBack();
+    }
+
+    if (!MetricRepository::isMetricActiveInYear($metric_id, $year)) {
+      Notices::set($user_id, 'error', 'Metrik tidak aktif pada tahun yang dipilih.');
+      self::redirectBack();
+    }
+
+    $is_mandatory = FunctionMetricAssignmentRepository::isMetricAssignedToUnit($unit_code, $year, $metric_id, 'MANDATORY');
+    if (!in_array($mode, array('MANDATORY', 'GENERAL'), true)) {
+      $mode = $is_mandatory ? 'MANDATORY' : 'GENERAL';
+    }
     $is_no_data = !empty($_POST['is_no_data']) && $mode === 'MANDATORY';
 
+    if ($mode === 'MANDATORY' && !$is_mandatory) {
+      Notices::set($user_id, 'error', 'Metrik ini bukan mandatory untuk unit Anda.');
+      self::redirectBack();
+    }
+    if ($mode === 'GENERAL' && $is_mandatory) {
+      Notices::set($user_id, 'error', 'Metrik mandatory harus dilaporkan melalui kategori Mandatory.');
+      self::redirectBack();
+    }
+
     if ($is_no_data) {
-      $unit_code = Auth::unitCode($user_id);
-      $is_mandatory = FunctionMetricAssignmentRepository::isMetricAssignedToUnit($unit_code, $year, $metric_id, 'MANDATORY');
       if (!$is_mandatory) {
         Notices::set($user_id, 'error', 'Metrik ini bukan mandatory untuk unit Anda.');
         self::redirectBack();

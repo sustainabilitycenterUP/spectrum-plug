@@ -27,8 +27,22 @@ include __DIR__ . '/layout-open.php';
 
   <form method="post" enctype="multipart/form-data" class="sp-form-wrapper" id="sp-form">
     <?php wp_nonce_field('spectrum_save_evidence', 'spectrum_nonce'); ?>
-    <input type="hidden" name="year" value="<?php echo (int)$year; ?>">
-    <h4>Tahun pelaporan 2027 <br> Tahun akademik 2024/2025</h4>
+
+    <div class="sp-form-row">
+      <label class="sp-label">Tahun *</label>
+      <select name="year" id="sp-year-select" class="sp-select" required>
+        <?php foreach ((array)$years as $y): ?>
+          <option value="<?php echo (int)$y; ?>" <?php selected((int)$year, (int)$y); ?>>
+            <?php echo esc_html('THE SIR ' . (int)$y); ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
+      <?php if ((int)$year > 0): ?>
+        <div class="sp-help">
+          Tolong berikan data periode <?php echo esc_html(((int)$year - 3) . '/' . ((int)$year - 2)); ?>.
+        </div>
+      <?php endif; ?>
+    </div>
 
     <div class="sp-form-row">
       <label class="sp-label">Kategori *</label>
@@ -49,18 +63,18 @@ include __DIR__ . '/layout-open.php';
     </div>
 
     <div class="sp-form-row">
-      <label class="sp-label">Metrik *</label>
+      <label class="sp-label">Indikator *</label>
       <select name="metric_id" id="metric_select" class="sp-select" required>
-        <option value="">-- Pilih Metrik --</option>
+        <option value="">-- Pilih Indikator --</option>
       </select>
     </div>
 
     <div id="sp-metric-info" class="sp-metric-box" style="display:none;margin-bottom:12px;">
-      <div class="sp-metric-title">Metric Question</div>
+      <div class="sp-metric-title">Question</div>
       <div id="sp-metric-question">-</div>
-      <div class="sp-metric-title" style="margin-top:8px;">Deskripsi Data yang Dibutuhkan</div>
-      <div id="sp-metric-desc">-</div>
-      <div class="sp-metric-title" style="margin-top:8px;">Catatan</div>
+      <div class="sp-metric-title" style="margin-top:8px;">This indicator has maximum points, based on:</div>
+      <div id="sp-metric-points">-</div>
+      <div class="sp-metric-title" style="margin-top:8px;">Notes:</div>
       <div id="sp-metric-note">-</div>
     </div>
 
@@ -119,6 +133,7 @@ include __DIR__ . '/layout-open.php';
   const noDataIds = new Set(<?php echo wp_json_encode(array_values((array)$no_data_ids)); ?>.map(Number));
 
   const modeEls = document.querySelectorAll('input[name="metric_mode"]');
+  const yearSelect = document.getElementById('sp-year-select');
   const sdgRow = document.getElementById('sp-sdg-row');
   const sdgSelect = document.getElementById('general_sdg');
   const metricSelect = document.getElementById('metric_select');
@@ -128,7 +143,7 @@ include __DIR__ . '/layout-open.php';
   const numberInput = document.getElementById('metric_number_value');
   const metricInfo = document.getElementById('sp-metric-info');
   const metricQuestion = document.getElementById('sp-metric-question');
-  const metricDesc = document.getElementById('sp-metric-desc');
+  const metricPoints = document.getElementById('sp-metric-points');
   const metricNote = document.getElementById('sp-metric-note');
   const form = document.getElementById('sp-form');
 
@@ -147,7 +162,7 @@ include __DIR__ . '/layout-open.php';
 
   function rebuildMetric() {
     const mode = getMode();
-    metricSelect.innerHTML = '<option value="">-- Pilih Metrik --</option>';
+    metricSelect.innerHTML = '<option value="">-- Pilih Indikator --</option>';
     noWrap.style.display = (mode === 'MANDATORY') ? '' : 'none';
     if (mode !== 'MANDATORY') noData.checked = false;
 
@@ -161,7 +176,7 @@ include __DIR__ . '/layout-open.php';
       opt.value = id;
       opt.textContent = item.label || `${item.metric_code} – ${item.metric_title}${noDataIds.has(id) ? ' [NO]' : ''}`;
       opt.dataset.question = item.metric_question || '';
-      opt.dataset.desc = item.metric_desc || '';
+      opt.dataset.points = item.metric_points || '';
       opt.dataset.note = item.metric_note || '';
       opt.dataset.type = (item.metric_type || '').toLowerCase();
       metricSelect.appendChild(opt);
@@ -209,7 +224,7 @@ include __DIR__ . '/layout-open.php';
       return;
     }
     metricQuestion.textContent = selectedOpt.dataset.question || '-';
-    metricDesc.textContent = selectedOpt.dataset.desc || '-';
+    metricPoints.textContent = selectedOpt.dataset.points || '-';
     metricNote.textContent = selectedOpt.dataset.note || '-';
     metricInfo.style.display = '';
     syncRequired();
@@ -238,6 +253,14 @@ include __DIR__ . '/layout-open.php';
   rebuildMetric();
   updateSourceMode();
   syncRequired();
+
+  if (yearSelect) {
+    yearSelect.addEventListener('change', function(){
+      const url = new URL(window.location.href);
+      url.searchParams.set('year', this.value);
+      window.location.href = url.toString();
+    });
+  }
 })();
 </script>
 

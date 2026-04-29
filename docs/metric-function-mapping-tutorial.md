@@ -1,9 +1,9 @@
-# Tutorial Plotting Metric ke Fungsi (Mandatory & Recommended)
+# Tutorial Plotting Metric ke Fungsi (Mandatory + General)
 
 Dokumen ini untuk mengisi data nyata (bukan dummy) agar:
 - metrik aktif per tahun tersimpan di `wp_spectrum_year_metric`,
 - metrik diplot ke fungsi/unit di `wp_spectrum_function_metric_assignment`,
-- form evidence menampilkan kategori `MANDATORY`, `RECOMMENDED`, dan `GENERAL` sesuai setup.
+- form evidence menampilkan kategori `MANDATORY` dan `GENERAL` sesuai setup.
 
 ---
 
@@ -19,7 +19,7 @@ Dokumen ini untuk mengisi data nyata (bukan dummy) agar:
 
 3. **Plot metric ke fungsi/unit**
    - `wp_spectrum_function_metric_assignment`
-   - relasi: `unit_code`, `metric_id`, `year`, `category` (`MANDATORY` / `RECOMMENDED`).
+   - relasi: `unit_code`, `metric_id`, `year`, `category` (dipakai: `MANDATORY`).
 
 ---
 
@@ -29,10 +29,10 @@ Dokumen ini untuk mengisi data nyata (bukan dummy) agar:
 
 ```sql
 INSERT INTO wp_spectrum_metric
-  (sdg_number, metric_code, metric_type, metric_title, metric_question, metric_note, is_active_default, created_at, updated_at)
+  (sdg_number, metric_code, metric_type, metric_title, metric_question, metric_points, metric_note, is_active_default, created_at, updated_at)
 VALUES
-  (3, '3.2.1', 'initiatives', 'Student health programme', 'Does your university provide ...?', 'Year: 2026', 1, NOW(), NOW()),
-  (4, '4.3.2', 'numeric', 'Graduate employability', NULL, 'Year: 2026', 1, NOW(), NOW());
+  (3, '3.2.1', 'initiatives', 'Student health programme', 'Does your university provide ...?', 'Existence of provision (max 1 point), Evidence provided (max 1 point), Is evidence public (1 point).', 'Year: 2026', 1, NOW(), NOW()),
+  (4, '4.3.2', 'numeric', 'Graduate employability', NULL, 'Evidence provided (max 1 point), Is evidence public (1 point).', 'Year: 2026', 1, NOW(), NOW());
 ```
 
 > Tips: gunakan `metric_code` konsisten dengan dokumen THE untuk memudahkan tracing.
@@ -55,15 +55,15 @@ SET is_active = 1, updated_at = NOW()
 WHERE year = 2026 AND metric_id IN (101,102);
 ```
 
-### Step C — plot metric ke fungsi (mandatory/recommended)
+### Step C — plot metric ke fungsi (mandatory)
 
 ```sql
--- dirdik: 1 mandatory + 1 recommended
+-- dirdik: 2 mandatory
 INSERT INTO wp_spectrum_function_metric_assignment
   (unit_code, metric_id, year, category, created_at, updated_at)
 VALUES
   ('dirdik', 101, 2026, 'MANDATORY', NOW(), NOW()),
-  ('dirdik', 102, 2026, 'RECOMMENDED', NOW(), NOW());
+  ('dirdik', 102, 2026, 'MANDATORY', NOW(), NOW());
 ```
 
 ---
@@ -108,8 +108,7 @@ Setelah data benar:
 
 1. Halaman **Buat Evidence Baru**:
    - kategori `MANDATORY` menampilkan metric assignment mandatory,
-   - kategori `RECOMMENDED` menampilkan assignment recommended,
-   - kategori `GENERAL` menampilkan metric aktif yang tidak diassign ke unit tsb.
+   - kategori `GENERAL` menampilkan metric aktif selain mandatory unit tsb.
 
 2. Dashboard **Progress per Unit**:
    - denominator (`mandatory_total`) dihitung dari assignment mandatory per unit.
@@ -123,4 +122,3 @@ Setelah data benar:
 - [ ] Tidak ada duplicate assignment (`unit_code`,`metric_id`,`year`,`category`).
 - [ ] Sampling 2–3 unit: form evidence tampil sesuai assignment.
 - [ ] Dashboard progress per unit masuk akal (0–100%).
-

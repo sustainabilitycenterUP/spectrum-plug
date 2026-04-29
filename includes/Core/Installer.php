@@ -27,9 +27,15 @@ final class Installer {
     }
 
     $tMetric = Db::table('spectrum_metric');
+    $hasPoints = $wpdb->get_results("SHOW COLUMNS FROM {$tMetric} LIKE 'metric_points'");
+    if (empty($hasPoints)) {
+      $wpdb->query("ALTER TABLE {$tMetric} ADD COLUMN metric_points LONGTEXT NULL AFTER metric_question");
+    }
+
     $hasDesc = $wpdb->get_results("SHOW COLUMNS FROM {$tMetric} LIKE 'metric_desc'");
-    if (empty($hasDesc)) {
-      $wpdb->query("ALTER TABLE {$tMetric} ADD COLUMN metric_desc TEXT NULL AFTER metric_question");
+    if (!empty($hasDesc)) {
+      $wpdb->query("UPDATE {$tMetric} SET metric_points = metric_desc WHERE (metric_points IS NULL OR metric_points = '') AND metric_desc IS NOT NULL");
+      $wpdb->query("ALTER TABLE {$tMetric} DROP COLUMN metric_desc");
     }
 
     // Optional: kalau kamu mau installer juga create table log (kalau belum)

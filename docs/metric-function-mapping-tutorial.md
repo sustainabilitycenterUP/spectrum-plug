@@ -29,10 +29,10 @@ Dokumen ini untuk mengisi data nyata (bukan dummy) agar:
 
 ```sql
 INSERT INTO wp_spectrum_metric
-  (sdg_number, metric_code, metric_type, metric_title, metric_question, metric_note, is_active_default, created_at, updated_at)
+  (sdg_number, metric_code, metric_type, metric_title, metric_question, metric_points, metric_note, is_active_default, created_at, updated_at)
 VALUES
-  (3, '3.2.1', 'initiatives', 'Student health programme', 'Does your university provide ...?', 'Year: 2026', 1, NOW(), NOW()),
-  (4, '4.3.2', 'numeric', 'Graduate employability', NULL, 'Year: 2026', 1, NOW(), NOW());
+  (3, '3.2.1', 'initiatives', 'Student health programme', 'Does your university provide ...?', 'Existence of provision (max 1 point), Evidence provided (max 1 point), Is evidence public (1 point).', 'Year: 2026', 1, NOW(), NOW()),
+  (4, '4.3.2', 'numeric', 'Graduate employability', NULL, 'Evidence provided (max 1 point), Is evidence public (1 point).', 'Year: 2026', 1, NOW(), NOW());
 ```
 
 > Tips: gunakan `metric_code` konsisten dengan dokumen THE untuk memudahkan tracing.

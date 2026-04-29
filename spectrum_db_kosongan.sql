@@ -104,7 +104,7 @@ CREATE TABLE `wp_spectrum_metric` (
   `metric_type` enum('numeric','initiatives','policy') NOT NULL,
   `metric_title` varchar(255) NOT NULL,
   `metric_question` text DEFAULT NULL,
-  `metric_desc` text DEFAULT NULL,
+  `metric_points` longtext DEFAULT NULL,
   `metric_note` longtext DEFAULT NULL,
   `is_active_default` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` datetime DEFAULT NULL,

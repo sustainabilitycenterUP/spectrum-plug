@@ -20,7 +20,12 @@ final class EvidenceFormShortcode {
 
     $user_id = Auth::userId();
     $unit_code = Auth::unitCode($user_id);
-    $year = 2027;
+    $years = array_map('intval', (array)MetricRepository::activeYears());
+    $selected_year = isset($_GET['year']) ? (int)$_GET['year'] : 0;
+    if (!in_array($selected_year, $years, true)) {
+      $selected_year = !empty($years) ? (int)$years[0] : 0;
+    }
+    $year = $selected_year;
 
     $mandatory_metrics = FunctionMetricAssignmentRepository::getAssignedMetricsByUnitAndYear($unit_code, $year, 'MANDATORY');
     $mandatory_ids = FunctionMetricAssignmentRepository::getAssignedMetricIdsByUnitAndYear($unit_code, $year);
@@ -58,6 +63,7 @@ final class EvidenceFormShortcode {
       'active' => 'new',
       'notice' => Notices::get($user_id),
       'year' => $year,
+      'years' => $years,
       'mandatory_metrics' => $formatted_mandatory,
       'general_metrics' => $general_metrics,
       'no_data_ids' => array_map('intval', (array)$no_data_ids),

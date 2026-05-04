@@ -26,7 +26,7 @@ final class MetricRepository {
         m.metric_code,
         m.metric_title,
         m.metric_question,
-        m.metric_desc,
+        m.metric_points,
         m.metric_note,
         m.metric_type,
         m.sdg_number,
@@ -89,7 +89,7 @@ final class MetricRepository {
         m.metric_type,
         m.metric_title,
         m.metric_question,
-        m.metric_desc,
+        m.metric_points,
         m.metric_note,
         y.year
       FROM {$m} m
@@ -116,7 +116,7 @@ final class MetricRepository {
         m.metric_code,
         m.metric_title,
         m.metric_question,
-        m.metric_desc,
+        m.metric_points,
         m.metric_note,
         m.metric_type,
         m.sdg_number,
@@ -138,5 +138,21 @@ final class MetricRepository {
       FROM {$m}
       WHERE id = %d
     ", (int)$metric_id));
+  }
+
+  public static function isMetricActiveInYear($metric_id, $year) {
+    global $wpdb;
+    $y = self::tYearMetric();
+
+    $found = $wpdb->get_var($wpdb->prepare("
+      SELECT id
+      FROM {$y}
+      WHERE metric_id = %d
+        AND year = %d
+        AND is_active = 1
+      LIMIT 1
+    ", (int)$metric_id, (int)$year));
+
+    return !empty($found);
   }
 }

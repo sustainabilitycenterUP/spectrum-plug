@@ -24,22 +24,6 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `wp_spectrum_attachment`
---
-
-CREATE TABLE `wp_spectrum_attachment` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `evidence_id` bigint(20) UNSIGNED NOT NULL,
-  `file_name` varchar(255) NOT NULL,
-  `file_path` varchar(500) NOT NULL,
-  `file_type` varchar(100) DEFAULT NULL,
-  `file_size` bigint(20) UNSIGNED DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `wp_spectrum_evidence`
 --
 
@@ -120,7 +104,7 @@ CREATE TABLE `wp_spectrum_metric` (
   `metric_type` enum('numeric','initiatives','policy') NOT NULL,
   `metric_title` varchar(255) NOT NULL,
   `metric_question` text DEFAULT NULL,
-  `metric_desc` text DEFAULT NULL,
+  `metric_points` longtext DEFAULT NULL,
   `metric_note` longtext DEFAULT NULL,
   `is_active_default` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` datetime DEFAULT NULL,
@@ -140,21 +124,6 @@ CREATE TABLE `wp_spectrum_metric_no_data` (
   `metric_id` bigint(20) UNSIGNED NOT NULL,
   `submitter_id` bigint(20) UNSIGNED DEFAULT NULL,
   `created_at` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `wp_spectrum_review`
---
-
-CREATE TABLE `wp_spectrum_review` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `evidence_id` bigint(20) UNSIGNED NOT NULL,
-  `reviewer_id` bigint(20) UNSIGNED NOT NULL,
-  `decision` enum('APPROVED','NEED_REVISION','REJECTED') NOT NULL,
-  `notes` text DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -204,16 +173,6 @@ CREATE TABLE `wp_spectrum_year_metric` (
 -- Indexes for dumped tables
 --
 
---
--- Indexes for table `wp_spectrum_attachment`
---
-ALTER TABLE `wp_spectrum_attachment`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_att_evidence` (`evidence_id`);
-
---
--- Indexes for table `wp_spectrum_evidence`
---
 ALTER TABLE `wp_spectrum_evidence`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_evidence_submitter` (`submitter_id`),
@@ -269,17 +228,6 @@ ALTER TABLE `wp_spectrum_metric_no_data`
   ADD KEY `idx_metric` (`metric_id`),
   ADD KEY `idx_unit_year` (`unit_code`,`year`);
 
---
--- Indexes for table `wp_spectrum_review`
---
-ALTER TABLE `wp_spectrum_review`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_review_evidence` (`evidence_id`),
-  ADD KEY `idx_review_reviewer` (`reviewer_id`);
-
---
--- Indexes for table `wp_spectrum_reviewer_scope`
---
 ALTER TABLE `wp_spectrum_reviewer_scope`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_scope_reviewer` (`reviewer_id`),
@@ -307,15 +255,6 @@ ALTER TABLE `wp_spectrum_year_metric`
 -- AUTO_INCREMENT for dumped tables
 --
 
---
--- AUTO_INCREMENT for table `wp_spectrum_attachment`
---
-ALTER TABLE `wp_spectrum_attachment`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `wp_spectrum_evidence`
---
 ALTER TABLE `wp_spectrum_evidence`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
@@ -349,15 +288,6 @@ ALTER TABLE `wp_spectrum_metric`
 ALTER TABLE `wp_spectrum_metric_no_data`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `wp_spectrum_review`
---
-ALTER TABLE `wp_spectrum_review`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `wp_spectrum_reviewer_scope`
---
 ALTER TABLE `wp_spectrum_reviewer_scope`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
@@ -371,28 +301,10 @@ ALTER TABLE `wp_spectrum_year_metric`
 -- Constraints for dumped tables
 --
 
---
--- Constraints for table `wp_spectrum_attachment`
---
-ALTER TABLE `wp_spectrum_attachment`
-  ADD CONSTRAINT `fk_att_evidence` FOREIGN KEY (`evidence_id`) REFERENCES `wp_spectrum_evidence` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `wp_spectrum_evidence_metric`
---
 ALTER TABLE `wp_spectrum_evidence_metric`
   ADD CONSTRAINT `fk_evmetric_evidence` FOREIGN KEY (`evidence_id`) REFERENCES `wp_spectrum_evidence` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_evmetric_metric` FOREIGN KEY (`metric_id`) REFERENCES `wp_spectrum_metric` (`id`) ON DELETE CASCADE;
 
---
--- Constraints for table `wp_spectrum_review`
---
-ALTER TABLE `wp_spectrum_review`
-  ADD CONSTRAINT `fk_review_evidence` FOREIGN KEY (`evidence_id`) REFERENCES `wp_spectrum_evidence` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `wp_spectrum_year_metric`
---
 ALTER TABLE `wp_spectrum_year_metric`
   ADD CONSTRAINT `fk_year_metric_metric` FOREIGN KEY (`metric_id`) REFERENCES `wp_spectrum_metric` (`id`) ON DELETE CASCADE;
 COMMIT;
